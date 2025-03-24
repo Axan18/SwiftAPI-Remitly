@@ -33,6 +33,7 @@ class BootstrapDataTest {
                 () -> assertNotNull(bank.getName(), "Bank name should not be null"),
                 () -> assertFalse(bank.getName().isBlank(), "Bank name should not be empty")
         );
+        System.out.println(bank);
     }
 
 }

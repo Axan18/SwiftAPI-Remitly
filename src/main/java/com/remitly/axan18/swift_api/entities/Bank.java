@@ -12,6 +12,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bank {
