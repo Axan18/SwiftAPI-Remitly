@@ -1,6 +1,7 @@
 package com.remitly.axan18.swift_api.bootstrap;
 
 import com.remitly.axan18.swift_api.entities.Bank;
+import com.remitly.axan18.swift_api.exceptions.InvalidSwiftCodeException;
 import com.remitly.axan18.swift_api.repositories.BankRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -21,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BootstrapData implements CommandLineRunner {
     private final BankRepository bankRepository;
+
     @Transactional
     @Override
     public void run(String... args) throws Exception {
@@ -37,8 +39,14 @@ public class BootstrapData implements CommandLineRunner {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
-                Bank bank = parseRowToBank(row, columnIndexMap);
-                banks.add(bank);
+                try{
+                    Bank bank = parseRowToBank(row, columnIndexMap);
+                    banks.add(bank);
+                }catch (InvalidSwiftCodeException e){
+
+                }catch (IllegalStateException e){
+
+                }
             }
             bankRepository.saveAllAndFlush(banks);
         } catch (IOException e) {
@@ -46,15 +54,34 @@ public class BootstrapData implements CommandLineRunner {
         }
 
     }
-    private Bank parseRowToBank(Row row, Map<String, Integer> columnIndexMap) {
-        return Bank.builder()
-                .swift(getCellValue(row, columnIndexMap.get("SWIFT CODE")).trim())
-                .name(getCellValue(row, columnIndexMap.get("NAME")).trim())
-                .address(getCellValue(row, columnIndexMap.get("ADDRESS")).trim())
-                .countryCodeISO2(getCellValue(row, columnIndexMap.get("COUNTRY ISO2 CODE")).trim())
-                .build();
-    }
+    private Bank parseRowToBank(Row row, Map<String, Integer> columnIndexMap) throws InvalidSwiftCodeException {
+        String swiftCode = getCellValue(row, columnIndexMap.get("SWIFT CODE")).trim();
+        String name = getCellValue(row, columnIndexMap.get("NAME")).trim();
+        String address = getCellValue(row, columnIndexMap.get("ADDRESS")).trim();
+        String countryCodeISO2 = getCellValue(row, columnIndexMap.get("COUNTRY ISO2 CODE")).trim();
+        if(swiftCode.length()!=11) //is length correct
+            throw new InvalidSwiftCodeException("Invalid SWIFT code length");
+        if(!isValid(swiftCode)) //does swiftcode contain only numbers and letters
+            throw new InvalidSwiftCodeException("SWIFT code contains characters that are not number or letters");
+        if(address.isEmpty())
+            address=null;
+        if(countryCodeISO2.length()!=2)
+            throw new IllegalStateException("Incorrect country code");
 
+        return Bank.builder()
+                    .swift(swiftCode)
+                    .name(name)
+                    .address(address)
+                    .countryCodeISO2(countryCodeISO2)
+                    .isHeadquarter(isHeadquarter(swiftCode))
+                    .build();
+
+    }
+    public boolean isValid(String s) {
+        String n = ".*[0-9].*";
+        String a = ".*[A-Z].*";
+        return s.matches(n) && s.matches(a);
+    }
     private static String getCellValue(Row row, Integer colIndex) {
         if (colIndex == null) return null;
         Cell cell = row.getCell(colIndex);
@@ -75,5 +102,8 @@ public class BootstrapData implements CommandLineRunner {
             columnIndexMap.put(cell.getStringCellValue(), cell.getColumnIndex());
         }
         return columnIndexMap;
+    }
+    private static Boolean isHeadquarter(String swiftCode){
+        return swiftCode.startsWith("XXX", 7);
     }
 }
