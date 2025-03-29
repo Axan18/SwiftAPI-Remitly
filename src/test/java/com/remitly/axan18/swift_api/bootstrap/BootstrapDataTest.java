@@ -50,6 +50,7 @@ class BootstrapDataTest {
             () -> assertEquals(2, bank.getCountryCodeISO2().length(), "Country ISO2 code should be 2 characters"),
             () -> assertNotNull(bank.getName(), "Bank name should not be null"),
             () -> assertFalse(bank.getName().isBlank(), "Bank name should not be empty"),
+            () -> assertFalse(bank.getCountryName().isBlank(), "Country name should not be empty"),
             () -> assertNotNull(bank.getIsHeadquarter(), "Bank should be headquarter or a branch")
         );
     }

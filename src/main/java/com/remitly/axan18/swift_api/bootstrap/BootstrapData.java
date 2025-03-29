@@ -60,17 +60,22 @@ public class BootstrapData{
         String name = getCellValue(row, columnIndexMap.get("NAME"));
         String address = getCellValue(row, columnIndexMap.get("ADDRESS"));
         String countryCodeISO2 = getCellValue(row, columnIndexMap.get("COUNTRY ISO2 CODE"));
-        if(swiftCode==null || name == null || countryCodeISO2 == null)
+        String countryName = getCellValue(row, columnIndexMap.get("COUNTRY NAME"));
+
+        if(swiftCode==null || name == null || countryCodeISO2 == null || countryName == null)
             throw new IllegalStateException(String.format(
-                    "Missing required fields: SWIFT Code: %s, Name: %s, Country Code: %s",
-                    swiftCode, name, countryCodeISO2
+                    "Missing required fields: SWIFT Code: %s, Name: %s, Country Code: %s, Country name: %s",
+                    swiftCode, name, countryCodeISO2, countryName
             ));
         swiftCode = swiftCode.toUpperCase();
         countryCodeISO2 = countryCodeISO2.toUpperCase();
+        countryName = countryName.toUpperCase();
+
         if(!validator.isValidSwift(swiftCode))
             throw new InvalidSwiftCodeException("SWIFT code contains characters that are not number or letters");
-        if(!validator.isValidISO2(countryCodeISO2))
+        if(!validator.isValidISO2(countryCodeISO2, countryName))
             throw new InvalidCountryCodeException("Country Code must be valid iso2 country code");
+
 
         return Bank.builder()
                     .swift(swiftCode)
@@ -78,6 +83,7 @@ public class BootstrapData{
                     .address(address)
                     .countryCodeISO2(countryCodeISO2)
                     .isHeadquarter(isHeadquarter(swiftCode))
+                    .countryName(countryName)
                     .build();
     }
 

@@ -35,6 +35,10 @@ public class Bank {
     @Column(length = 255, columnDefinition = "varchar(255)")
     private String address;
 
+    @NotBlank
+    @Column(length = 255, columnDefinition = "varchar(255)")
+    private String countryName;
+
     @NotNull
     private Boolean isHeadquarter;
 

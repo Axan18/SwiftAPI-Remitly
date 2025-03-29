@@ -7,16 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 @Component
-public class BankValidator {
+public class BankValidator{
 
-    public boolean isValidISO2(String ccISO2) {
+    private final String[] iso2Countries = Locale.getISOCountries();
+    public boolean isValidISO2(String ccISO2, String countryName) {
         if (ccISO2 == null || ccISO2.length() != 2) {
             return false;
         }
-        String[] isoCountries = Locale.getISOCountries();
-        for (String countryCode : isoCountries) {
-            if (countryCode.equalsIgnoreCase(ccISO2)) {
-                return true;
+        Locale.Builder locBuilder = new Locale.Builder();
+        for (String countryCode : iso2Countries) {
+            if (countryCode.equalsIgnoreCase(ccISO2)) {// check if given iso country code is valid
+                Locale locale = locBuilder.setRegion(ccISO2).build();
+                if(locale.getDisplayCountry().equalsIgnoreCase(countryName)) // check if given country name corresponds to correct one
+                    return true;
             }
         }
         return false;
