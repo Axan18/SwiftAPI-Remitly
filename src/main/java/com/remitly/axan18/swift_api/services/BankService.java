@@ -7,7 +7,8 @@ import com.remitly.axan18.swift_api.models.BankHeadquarterDTO;
 import java.util.List;
 
 public interface BankService {
-    String deleteBySwift(String swiftCode);
+    boolean deleteBySwift(String swiftCode);
+    boolean addBank(BankDTO bankDTO);
     List<BankDTO> getBanksByCountryCode(String countryCode);
     BankHeadquarterDTO getBankHeadquarterBySwift(String swiftCode);
     BankDTO getBankBySwift(String swiftCode);
