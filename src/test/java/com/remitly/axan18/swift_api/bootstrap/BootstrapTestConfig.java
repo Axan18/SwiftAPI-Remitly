@@ -7,7 +7,12 @@ import org.springframework.context.annotation.Bean;
 @TestConfiguration
 public class BootstrapTestConfig {
     @Bean
-    public BootstrapData bootstrapData(BankRepository bankRepository){
-        return new BootstrapData(bankRepository);
+    public BootstrapData bootstrapData(BankRepository bankRepository, BankValidator validator){
+        return new BootstrapData(bankRepository, validator);
     }
+    @Bean
+    public BankValidator bankValidator() {
+        return new BankValidator();
+    }
+
 }

@@ -1,18 +1,21 @@
 package com.remitly.axan18.swift_api.bootstrap;
 
 import com.remitly.axan18.swift_api.entities.Bank;
+import com.remitly.axan18.swift_api.exceptions.DataLoadingException;
+import com.remitly.axan18.swift_api.exceptions.InvalidCountryCodeException;
 import com.remitly.axan18.swift_api.exceptions.InvalidSwiftCodeException;
 import com.remitly.axan18.swift_api.repositories.BankRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.EmptyFileException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.boot.CommandLineRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,17 +23,13 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class BootstrapData implements CommandLineRunner {
+public class BootstrapData{
     private final BankRepository bankRepository;
+    private final BankValidator validator;
+    private static final Logger log = LoggerFactory.getLogger(BootstrapData.class);
 
-    @Transactional
-    @Override
-    public void run(String... args) throws Exception {
-        loadBanksData();
-    }
-
-    private void loadBanksData(){
-        try (InputStream fileInputStream = new ClassPathResource("data/Interns_2025_SWIFT_CODES.xlsx").getInputStream();
+    public void loadBanksData(String xlsxPath) throws DataLoadingException {
+        try (InputStream fileInputStream = new ClassPathResource(xlsxPath).getInputStream();
             Workbook workbook = new XSSFWorkbook(fileInputStream)){
             Sheet sheet = workbook.getSheetAt(0);
             Map<String, Integer> columnIndexMap = extractColumnIndexMap(sheet);
@@ -40,33 +39,38 @@ public class BootstrapData implements CommandLineRunner {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 try{
-                    Bank bank = parseRowToBank(row, columnIndexMap);
-                    banks.add(bank);
+                    banks.add(parseRowToBank(row, columnIndexMap));
+
                 }catch (InvalidSwiftCodeException e){
-
+                    log.info("Invalid SWIFT code at row: {}", row.getRowNum(), e);
                 }catch (IllegalStateException e){
-
+                    log.info("Invalid data in row: {}", row.getRowNum(), e);
+                }catch (InvalidCountryCodeException e){
+                    log.info("Invalid country code", e);
                 }
             }
             bankRepository.saveAllAndFlush(banks);
-        } catch (IOException e) {
-            throw new IllegalStateException("Error reading XLSX file from classpath", e);
+        } catch (IOException | EmptyFileException e) {
+            throw new DataLoadingException("Error reading XLSX file from classpath", e);
         }
-
     }
-    private Bank parseRowToBank(Row row, Map<String, Integer> columnIndexMap) throws InvalidSwiftCodeException {
-        String swiftCode = getCellValue(row, columnIndexMap.get("SWIFT CODE")).trim();
-        String name = getCellValue(row, columnIndexMap.get("NAME")).trim();
-        String address = getCellValue(row, columnIndexMap.get("ADDRESS")).trim();
-        String countryCodeISO2 = getCellValue(row, columnIndexMap.get("COUNTRY ISO2 CODE")).trim();
-        if(swiftCode.length()!=11) //is length correct
-            throw new InvalidSwiftCodeException("Invalid SWIFT code length");
-        if(!isValid(swiftCode)) //does swiftcode contain only numbers and letters
+
+    private Bank parseRowToBank(Row row, Map<String, Integer> columnIndexMap) throws InvalidSwiftCodeException, InvalidCountryCodeException {
+        String swiftCode = getCellValue(row, columnIndexMap.get("SWIFT CODE"));
+        String name = getCellValue(row, columnIndexMap.get("NAME"));
+        String address = getCellValue(row, columnIndexMap.get("ADDRESS"));
+        String countryCodeISO2 = getCellValue(row, columnIndexMap.get("COUNTRY ISO2 CODE"));
+        if(swiftCode==null || name == null || countryCodeISO2 == null)
+            throw new IllegalStateException(String.format(
+                    "Missing required fields: SWIFT Code: %s, Name: %s, Country Code: %s",
+                    swiftCode, name, countryCodeISO2
+            ));
+        swiftCode = swiftCode.toUpperCase();
+        countryCodeISO2 = countryCodeISO2.toUpperCase();
+        if(!validator.isValidSwift(swiftCode))
             throw new InvalidSwiftCodeException("SWIFT code contains characters that are not number or letters");
-        if(address.isEmpty())
-            address=null;
-        if(countryCodeISO2.length()!=2)
-            throw new IllegalStateException("Incorrect country code");
+        if(!validator.isValidISO2(countryCodeISO2))
+            throw new InvalidCountryCodeException("Country Code must be valid iso2 country code");
 
         return Bank.builder()
                     .swift(swiftCode)
@@ -75,22 +79,21 @@ public class BootstrapData implements CommandLineRunner {
                     .countryCodeISO2(countryCodeISO2)
                     .isHeadquarter(isHeadquarter(swiftCode))
                     .build();
+    }
 
-    }
-    public boolean isValid(String s) {
-        String n = ".*[0-9].*";
-        String a = ".*[A-Z].*";
-        return s.matches(n) && s.matches(a);
-    }
     private static String getCellValue(Row row, Integer colIndex) {
         if (colIndex == null) return null;
         Cell cell = row.getCell(colIndex);
         if (cell == null) return null;
 
         DataFormatter formatter = new DataFormatter();
-        String value = formatter.formatCellValue(cell);
-        return value.isEmpty() ? null : value.trim();
+        String value = formatter.formatCellValue(cell).trim();
+        if(value.isEmpty()){
+            return null;
+        }
+        return value;
     }
+
     private Map<String, Integer> extractColumnIndexMap(Sheet sheet) {
         Row headerRow = sheet.getRow(0);
         if (headerRow == null) {
@@ -103,7 +106,8 @@ public class BootstrapData implements CommandLineRunner {
         }
         return columnIndexMap;
     }
+
     private static Boolean isHeadquarter(String swiftCode){
-        return swiftCode.startsWith("XXX", 7);
+        return swiftCode.startsWith("XXX", 8);//last 3 characters are XXX in headquarter
     }
 }

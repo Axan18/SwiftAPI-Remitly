@@ -3,6 +3,7 @@ package com.remitly.axan18.swift_api.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -22,16 +23,15 @@ public class Bank {
     private String swift;
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @Column(length = 2, columnDefinition = "varchar(2)")
     private String countryCodeISO2;
 
     @NotNull
-    @NotEmpty
+    @NotBlank
     @Column(length = 255, columnDefinition = "varchar(255)")
     private String name;
 
-    @NotEmpty
     @Column(length = 255, columnDefinition = "varchar(255)")
     private String address;
 

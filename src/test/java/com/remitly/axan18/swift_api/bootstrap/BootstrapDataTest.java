@@ -1,25 +1,44 @@
 package com.remitly.axan18.swift_api.bootstrap;
 
 import com.remitly.axan18.swift_api.entities.Bank;
+import com.remitly.axan18.swift_api.exceptions.DataLoadingException;
 import com.remitly.axan18.swift_api.repositories.BankRepository;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import(BootstrapTestConfig.class)
+@Import({BootstrapData.class, BootstrapTestConfig.class})
 class BootstrapDataTest {
     @Autowired
     BankRepository bankRepository;
+    @Autowired
+    private BootstrapData bootstrapData;
 
-    @Test
-    void testBootStrap(){
+    @BeforeEach
+    void setUp(){
+        bankRepository.deleteAll();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "data/testOriginal.xlsx")
+    void testBootStrap(String xlsxPath){
+        try {
+            bootstrapData.loadBanksData(xlsxPath);
+        } catch (DataLoadingException e) {
+            fail();
+        }
         long bankCount = bankRepository.count();
         assertTrue(bankCount > 0, "Bank table should contain at least one record");
         List<Bank> banks = bankRepository.findAll();
@@ -36,4 +55,68 @@ class BootstrapDataTest {
         );
     }
 
+    /**
+     * Test checks parsing ISO2 country codes during loading records from file.
+     * File contains 10 records: 4-correct, 4-incorrect, 2-soon correct
+     * <p>
+     * Incorrect ones are:
+     * <p>"Ala" - too long</p>
+     * <p>"11" - numbers are not valid country codes</p>
+     * <p>"B" - too short</p>
+     * <p>null - not allowed</p>
+     * </p>
+     * <p>
+     *      Besides that 2 records need adjustment
+     *      <p>"bg" to "BG"</p>
+     *      <p>" PL" to "PL</p>
+     * </p>
+     * @param xlsxPath path to .xlsx test file
+     */
+    @ParameterizedTest
+    @ValueSource(strings = "data/testIncorrectCountryCode.xlsx")
+    void testCountryCodeParsing(String xlsxPath){
+        try {
+            bootstrapData.loadBanksData(xlsxPath);
+        } catch (DataLoadingException e) {
+            fail();
+        }
+        assertEquals(6,bankRepository.count());
+    }
+    /**
+     * Test checks parsing Swift codes during loading records from file.
+     * File contains 10 records: 5-correct, 4-incorrect, 1-soon correct
+     * <p>
+     * Incorrect ones are:
+     * <p>"AAISALTRXXXa" - too long</p>
+     * <p>"ABIEBGS1XXX2" - too long</p>
+     * <p>"ADCRBGS1XX" - too short</p>
+     * <p>"AFAAUY`1XXX" - not allowed character</p>
+     * </p>
+     * <p>
+     *      Besides that 1 record need adjustment
+     *      <p>"AGRaMCM1XXX" to "AGRAMCM1XXX"</p>
+     * </p>
+     * @param xlsxPath path to .xlsx test file
+     */
+    @ParameterizedTest
+    @ValueSource(strings = "data/testIncorrectSwift.xlsx")
+    void testIncorrectSwiftCodes(String xlsxPath){
+        try {
+            bootstrapData.loadBanksData(xlsxPath);
+        } catch (DataLoadingException e) {
+            fail();
+        }
+        assertEquals(6,bankRepository.count());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = "data/emptyFile.xlsx")
+    void testEmptyFile(String xlsxPath) throws DataLoadingException {
+        assertThrows(DataLoadingException.class,() -> bootstrapData.loadBanksData(xlsxPath));
+    }
+
+    static Stream<File> testFilesProvider() {
+        File folder = new File("src/test/resources/test-data/");
+        return Arrays.stream(folder.listFiles((dir, name) -> name.endsWith(".xlsx")));
+    }
 }
