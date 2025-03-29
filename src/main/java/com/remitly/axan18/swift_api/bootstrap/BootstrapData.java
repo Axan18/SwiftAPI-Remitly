@@ -94,7 +94,7 @@ public class BootstrapData{
         return value;
     }
 
-    private Map<String, Integer> extractColumnIndexMap(Sheet sheet) {
+    private Map<String, Integer> extractColumnIndexMap(Sheet sheet) throws DataLoadingException{
         Row headerRow = sheet.getRow(0);
         if (headerRow == null) {
             throw new IllegalStateException("XLSX file has no header row!");
@@ -104,6 +104,9 @@ public class BootstrapData{
         for (Cell cell : headerRow) {
             columnIndexMap.put(cell.getStringCellValue(), cell.getColumnIndex());
         }
+        columnIndexMap.remove("");// removing empty column
+        if(!validator.areValidColumns(columnIndexMap.keySet()))
+            throw new DataLoadingException("Invalid columns in datafile");
         return columnIndexMap;
     }
 

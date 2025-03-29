@@ -3,6 +3,8 @@ package com.remitly.axan18.swift_api.bootstrap;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class BankValidator {
@@ -22,5 +24,10 @@ public class BankValidator {
 
     public boolean isValidSwift(String s) {
         return s.length() == 11 && s.matches("^[A-Za-z0-9]{11}$");
+    }
+
+    public boolean areValidColumns(Set<String> columns){
+        Set<String> correctColumns = Set.of("COUNTRY ISO2 CODE","SWIFT CODE", "CODE TYPE", "NAME", "ADDRESS", "TOWN NAME", "COUNTRY NAME", "TIME ZONE");
+        return columns.size() == correctColumns.size() && columns.containsAll(correctColumns);
     }
 }

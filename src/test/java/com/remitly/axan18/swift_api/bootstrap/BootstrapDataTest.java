@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -109,9 +108,23 @@ class BootstrapDataTest {
         assertEquals(6,bankRepository.count());
     }
 
+    /**
+     * Tests empty xlsx file.
+     * @param xlsxPath
+     */
     @ParameterizedTest
-    @ValueSource(strings = "data/emptyFile.xlsx")
-    void testEmptyFile(String xlsxPath) throws DataLoadingException {
+    @ValueSource(strings = "data/testEmptyFile.xlsx")
+    void testEmptyFile(String xlsxPath){
+        assertThrows(DataLoadingException.class,() -> bootstrapData.loadBanksData(xlsxPath));
+    }
+
+    /**
+     * Tests file without swift code column.
+     * @param xlsxPath
+     */
+    @ParameterizedTest
+    @ValueSource(strings = "data/testInvalidColumns.xlsx")
+    void testInvalidColumns(String xlsxPath){
         assertThrows(DataLoadingException.class,() -> bootstrapData.loadBanksData(xlsxPath));
     }
 
