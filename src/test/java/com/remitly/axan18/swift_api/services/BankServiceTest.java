@@ -50,7 +50,7 @@ public class BankServiceTest {
     @Test
     void testAddBank(){
         BankDTO bankDTO = BankDTO.builder()
-                .countryCode("AL")
+                .countryCodeISO2("AL")
                 .swift(testSwift)
                 .name("UNITED BANK OF ALBANIA SH.A")
                 .address("HYRJA 3 RR. DRITAN HOXHA ND. 11 TIRANA, TIRANA, 1023")

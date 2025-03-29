@@ -4,6 +4,7 @@ import com.remitly.axan18.swift_api.exceptions.CannotDeleteEntityException;
 import com.remitly.axan18.swift_api.mappers.BankMapper;
 import com.remitly.axan18.swift_api.models.BankDTO;
 import com.remitly.axan18.swift_api.models.BankHeadquarterDTO;
+import com.remitly.axan18.swift_api.models.CountryWithSwiftCodesDTO;
 import com.remitly.axan18.swift_api.repositories.BankRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -16,6 +17,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -56,13 +59,25 @@ public class BankServiceImpl implements BankService{
     }
 
     @Override
-    public List<BankDTO> getBanksByCountryCode(String countryCode) {
-        return List.of();
-    }
-
-    @Override
-    public BankHeadquarterDTO getBankHeadquarterBySwift(String swiftCode) {
-        return null;
+    public CountryWithSwiftCodesDTO getBanksByCountryCode(String countryCode) {
+        List<BankDTO> banks = bankRepository.getBanksByCountryCodeISO2(countryCode).stream().map(
+                bank -> {
+                    return BankDTO.builder()
+                            .address(bank.getAddress())
+                            .name(bank.getName())
+                            .countryCodeISO2(bank.getCountryCodeISO2())
+                            .isHeadquarter(bank.getIsHeadquarter())
+                            .swift(bank.getSwift())
+                            .branches(null)
+                            .countryName(null)
+                            .build();
+                }
+        ).toList();
+        return CountryWithSwiftCodesDTO.builder()
+                .countryISO2(countryCode)
+                .countryName(new Locale.Builder().setRegion(countryCode).build().getDisplayCountry().toUpperCase())
+                .swiftCodes(banks)
+                .build();
     }
 
     @Override
