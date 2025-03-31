@@ -1,5 +1,6 @@
 package com.remitly.axan18.swift_api.services;
 
+import com.remitly.axan18.swift_api.bootstrap.BankValidator;
 import com.remitly.axan18.swift_api.entities.Bank;
 import com.remitly.axan18.swift_api.exceptions.CannotDeleteEntityException;
 import com.remitly.axan18.swift_api.exceptions.InvalidSwiftCodeException;
@@ -26,6 +27,7 @@ import java.util.Locale;
 public class BankServiceImpl implements BankService{
     private final BankRepository bankRepository;
     private final BankMapper bankMapper;
+    private final BankValidator bankValidator;
 
     @Override
     public boolean deleteBySwift(String swiftCode) {
@@ -45,11 +47,29 @@ public class BankServiceImpl implements BankService{
 
     @Override
     public boolean addBank(NewBankDTO bankDTO) {
+        if (bankDTO == null || bankDTO.getCountryISO2() == null || bankDTO.getBankName() == null ||
+                bankDTO.getCountryName() == null || bankDTO.getSwiftCode() == null) {
+            throw new IllegalStateException(String.format(
+                    "Missing required fields: SWIFT Code: %s, Name: %s, Country Code: %s, Country Name: %s",
+                    bankDTO != null ? bankDTO.getSwiftCode() : "null",
+                    bankDTO != null ? bankDTO.getBankName() : "null",
+                    bankDTO != null ? bankDTO.getCountryISO2() : "null",
+                    bankDTO != null ? bankDTO.getCountryName() : "null"
+            ));
+        }
+        Bank bank = bankMapper.toBank(bankDTO);
+        if (!bankValidator.isValidISO2(bank.getCountryISO2(), bank.getCountryName()))
+            throw new ValidationException("Invalid country code or country name");
+        if (!bankValidator.isValidSwift(bank.getSwiftCode()))
+            throw new ValidationException("Invalid SWIFT code format");
+        if (!bankValidator.isValidHeadquarter(bank.getSwiftCode(), bank.getIsHeadquarter()))
+            throw new ValidationException("Invalid headquarter information");
+
         try {
-            bankRepository.save(bankMapper.toBank(bankDTO));
+            bankRepository.save(bank);
             return true;
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicateKeyException("Bank with this swiftCode already exists", e);
+            throw new DuplicateKeyException("Bank with this SWIFT code already exists", e);
         } catch (ConstraintViolationException e) {
             throw new ValidationException("Invalid bank data: " + e.getMessage(), e);
         } catch (IllegalArgumentException e) {
