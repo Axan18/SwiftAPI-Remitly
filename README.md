@@ -28,7 +28,7 @@ mvn clean install
 3. Run the project
 ```bash
 docker-compose up --build -d
-
+```
 4. Access the API
 ```bash
  http://localhost:8080
