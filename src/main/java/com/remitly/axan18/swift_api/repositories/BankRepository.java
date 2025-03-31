@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BankRepository extends JpaRepository<Bank, String> {
     List<Bank> getBanksByCountryISO2(String countryCode);
     @Query("SELECT b from Bank b where b.swiftCode LIKE :swift")
     List<Bank> getBanksBySwift(@Param("swift") String swift);
-    Bank getBankBySwiftCode(String swift);
+    Optional<Bank> getBankBySwiftCode(String swift);
 }

@@ -64,6 +64,9 @@ public class BankServiceImpl implements BankService{
             throw new ValidationException("Invalid SWIFT code format");
         if (!bankValidator.isValidHeadquarter(bank.getSwiftCode(), bank.getIsHeadquarter()))
             throw new ValidationException("Invalid headquarter information");
+        if (bankRepository.existsById(bank.getSwiftCode())) {
+            throw new DuplicateKeyException("Bank with this SWIFT code already exists");
+        }
 
         try {
             bankRepository.save(bank);
@@ -139,7 +142,8 @@ public class BankServiceImpl implements BankService{
 
             return new BankDTO(headquarter, branches);
         }else{
-            Bank bank = bankRepository.getBankBySwiftCode(swiftCode);
+            Bank bank = bankRepository.getBankBySwiftCode(swiftCode)
+                    .orElseThrow(() -> new EntityNotFoundException("Bank with swift code " + swiftCode + " not found."));
             if (bank == null) {
                 throw new EntityNotFoundException("Bank with swift code " + swiftCode + " not found.");
             }
