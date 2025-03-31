@@ -2,6 +2,7 @@ package com.remitly.axan18.swift_api.controllers;
 
 import com.remitly.axan18.swift_api.models.BankDTO;
 import com.remitly.axan18.swift_api.models.CountryWithSwiftCodesDTO;
+import com.remitly.axan18.swift_api.models.NewBankDTO;
 import com.remitly.axan18.swift_api.services.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class BankController {
 
     private final BankService bankService;
 
-    @PostMapping(SWIFT_PATH_COUNTRY)
-    public ResponseEntity<String> addBank(@RequestBody BankDTO bankDTO) {
+    @PostMapping(SWIFT_PATH)
+    public ResponseEntity<String> addBank(@RequestBody NewBankDTO bankDTO) {
         if (bankService.addBank(bankDTO)) {
             return new ResponseEntity<>("Bank added successfully", HttpStatus.CREATED);
         }
@@ -45,7 +46,7 @@ public class BankController {
 
     @GetMapping(SWIFT_PATH_COUNTRY + "/{countryISO2code}")
     public ResponseEntity<CountryWithSwiftCodesDTO> getBanksByCountryCode(@PathVariable String countryISO2code) {
-        return new ResponseEntity<>(bankService.getBanksByCountryCode(countryISO2code.toUpperCase()), HttpStatus.OK);
+        return new ResponseEntity<>(bankService.getBanksByCountryCode(countryISO2code), HttpStatus.OK);
     }
 
 

@@ -8,9 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BankRepository extends JpaRepository<Bank, String> {
-    List<Bank> getBanksByCountryCodeISO2(String countryCode);
-
-    @Query("SELECT b from Bank b where b.swift LIKE :swift")
+    List<Bank> getBanksByCountryISO2(String countryCode);
+    @Query("SELECT b from Bank b where b.swiftCode LIKE :swift")
     List<Bank> getBanksBySwift(@Param("swift") String swift);
-    Bank getBankBySwift(String swift);
+    Bank getBankBySwiftCode(String swift);
 }

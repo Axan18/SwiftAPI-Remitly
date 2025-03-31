@@ -1,6 +1,5 @@
 package com.remitly.axan18.swift_api.models;
 
-
 import lombok.*;
 
 @Builder
@@ -8,10 +7,11 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class BankBranchDTO {
-    private String swift;
-    private String name;
+public class NewBankDTO {
     private String address;
-    private String countryCode;
+    private String bankName;
+    private String countryISO2;
+    private String countryName;
     private Boolean isHeadquarter;
+    private String swiftCode;
 }

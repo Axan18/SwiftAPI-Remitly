@@ -54,7 +54,12 @@ public class GlobalExceptionHandler{
     @ExceptionHandler(IllformedLocaleException.class)
     public ResponseEntity<String> handleIllformedLocaleException(IllformedLocaleException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("\""+e.getMessage() +"\""+
-                " is not a valid country code. Country code should have 2 letters corresponding to specific country in " +
+                " is not a valid country code. Country code should have 2 uppercase letters corresponding to specific country in " +
                 "ISO 3166-1 alpha-2 standard.");
+    }
+    @ExceptionHandler(InvalidSwiftCodeException.class)
+    public ResponseEntity<String> handleInvalidSwiftCodeException(InvalidSwiftCodeException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid SWIFT code:"+e.getMessage()+
+                ". SWIFT code should have 11 characters and contain only uppercase letters and digits.");
     }
 }

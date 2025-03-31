@@ -78,10 +78,10 @@ public class BootstrapData{
 
 
         return Bank.builder()
-                    .swift(swiftCode)
-                    .name(name)
+                    .swiftCode(swiftCode)
+                    .bankName(name)
                     .address(address)
-                    .countryCodeISO2(countryCodeISO2)
+                    .countryISO2(countryCodeISO2)
                     .isHeadquarter(isHeadquarter(swiftCode))
                     .countryName(countryName)
                     .build();

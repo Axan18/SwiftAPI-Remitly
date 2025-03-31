@@ -15,6 +15,4 @@ public class CountryWithSwiftCodesDTO {
     private String countryISO2;
     private String countryName;
     private List<BankDTO> swiftCodes;
-
-    // Getters and Setters
 }
