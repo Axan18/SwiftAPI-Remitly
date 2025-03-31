@@ -15,36 +15,78 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleNotFound(EntityNotFoundException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleBadRequest(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.badRequest().body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(CannotDeleteEntityException.class)
     public ResponseEntity<String> handleDatabaseError(CannotDeleteEntityException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<String> handleDuplicateKey(DuplicateKeyException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<String> handleValidationException(ValidationException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        """
+            {
+                "message": "%s",
+            }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+        """
+        {
+            "message": "%s",
+        }
+        """.formatted(e.getMessage())
+        );
     }
 
     @ExceptionHandler(Exception.class)
