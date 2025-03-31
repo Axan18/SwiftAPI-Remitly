@@ -36,6 +36,12 @@ The parser reads the data from the XLSX file and stores it in the database.
 As many records in provided XLSX file do not have address details, the parser will accept them anyway.
 In GET requests, the SWIFT codes and country codes are case-sensitive.
 
+To parse other XLSX files, you can replace the file in the resources folder,
+change file name in 
+>src/main/java/com/remitly/axan18/swift_api/bootstrap/BootstrapInitializer.java
+
+class and restart the application.
+
 ## API Endpoints
 - GET: /v1/swift-codes/{swift-code}
   - Retrieve details of a single SWIFT code whether for a headquarters or branches.
