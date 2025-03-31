@@ -11,32 +11,31 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class BankDTO {
-    private String swift;
-    private String countryCodeISO2;
+    private String address;
+    private String bankName;
+    private String countryISO2;
+    private Boolean isHeadquarter;
+    private String swiftCode;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String countryName;
-    private String name;
-    private String address;
-    private Boolean isHeadquarter;
-
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<BankDTO> branches;
 
     public BankDTO(Bank branch) {
-        this.swift = branch.getSwift();
-        this.countryCodeISO2 = branch.getCountryCodeISO2();
+        this.swiftCode = branch.getSwift();
+        this.countryISO2 = branch.getCountryCodeISO2();
         this.countryName = branch.getCountryName();
-        this.name = branch.getName();
+        this.bankName = branch.getName();
         this.address = branch.getAddress();
         this.isHeadquarter = branch.getIsHeadquarter();
         this.branches = null;
     }
 
     public BankDTO(Bank headquarter, List<BankDTO> branches) {
-        this.swift = headquarter.getSwift();
-        this.countryCodeISO2 = headquarter.getCountryCodeISO2();
+        this.swiftCode = headquarter.getSwift();
+        this.countryISO2 = headquarter.getCountryCodeISO2();
         this.countryName = headquarter.getCountryName();
-        this.name = headquarter.getName();
+        this.bankName = headquarter.getName();
         this.address = headquarter.getAddress();
         this.isHeadquarter = headquarter.getIsHeadquarter();
         this.branches = branches;

@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.IllformedLocaleException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 
@@ -48,5 +50,11 @@ public class GlobalExceptionHandler{
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+    }
+    @ExceptionHandler(IllformedLocaleException.class)
+    public ResponseEntity<String> handleIllformedLocaleException(IllformedLocaleException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("\""+e.getMessage() +"\""+
+                " is not a valid country code. Country code should have 2 letters corresponding to specific country in " +
+                "ISO 3166-1 alpha-2 standard.");
     }
 }

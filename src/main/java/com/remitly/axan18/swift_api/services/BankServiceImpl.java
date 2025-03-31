@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Locale;
 
@@ -61,17 +62,28 @@ public class BankServiceImpl implements BankService{
         List<BankDTO> banks = bankRepository.getBanksByCountryCodeISO2(countryCode).stream().map(
                 bank -> BankDTO.builder()
                         .address(bank.getAddress())
-                        .name(bank.getName())
-                        .countryCodeISO2(bank.getCountryCodeISO2())
+                        .bankName(bank.getName())
+                        .countryISO2(bank.getCountryCodeISO2())
                         .isHeadquarter(bank.getIsHeadquarter())
-                        .swift(bank.getSwift())
+                        .swiftCode(bank.getSwift())
                         .branches(null)
                         .countryName(null)
                         .build()
         ).toList();
+        Locale loc;
+        try{
+            loc = new Locale.Builder().setRegion(countryCode).build();
+        }catch (IllformedLocaleException e){
+            throw new IllformedLocaleException(countryCode);
+        }
+        String countryName = loc.getDisplayCountry().toUpperCase();
+        if(countryName.equals("") || countryName.equals(countryCode)){
+            throw new IllformedLocaleException(countryCode);
+
+        }
         return CountryWithSwiftCodesDTO.builder()
                 .countryISO2(countryCode)
-                .countryName(new Locale.Builder().setRegion(countryCode).build().getDisplayCountry().toUpperCase())
+                .countryName(countryName)
                 .swiftCodes(banks)
                 .build();
     }
@@ -86,10 +98,10 @@ public class BankServiceImpl implements BankService{
             List<BankDTO> branches = bankRepository.getBanksBySwift(swiftCode.substring(0,8)+"%").stream().map(
                     branch -> BankDTO.builder()
                             .address(branch.getAddress())
-                            .name(branch.getName())
-                            .countryCodeISO2(branch.getCountryCodeISO2())
+                            .bankName(branch.getName())
+                            .countryISO2(branch.getCountryCodeISO2())
                             .isHeadquarter(branch.getIsHeadquarter())
-                            .swift(branch.getSwift())
+                            .swiftCode(branch.getSwift())
                             .branches(null)
                             .countryName(null)
                             .build()).toList();

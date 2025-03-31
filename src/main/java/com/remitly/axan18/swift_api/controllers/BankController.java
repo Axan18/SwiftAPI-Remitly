@@ -45,7 +45,7 @@ public class BankController {
 
     @GetMapping(SWIFT_PATH_COUNTRY + "/{countryISO2code}")
     public ResponseEntity<CountryWithSwiftCodesDTO> getBanksByCountryCode(@PathVariable String countryISO2code) {
-        return new ResponseEntity<>(bankService.getBanksByCountryCode(countryISO2code), HttpStatus.OK);
+        return new ResponseEntity<>(bankService.getBanksByCountryCode(countryISO2code.toUpperCase()), HttpStatus.OK);
     }
 
 

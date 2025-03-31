@@ -99,7 +99,7 @@ public class BankServiceTest {
         assertEquals(countryCode, result.getCountryISO2());
         assertEquals(new Locale.Builder().setRegion(countryCode).build().getDisplayCountry().toUpperCase(), result.getCountryName());
         assertEquals(3, result.getSwiftCodes().size());
-        assertEquals("ABCDEFGEXXX", result.getSwiftCodes().get(2).getSwift());
+        assertEquals("ABCDEFGEXXX", result.getSwiftCodes().get(2).getSwiftCode());
         verify(bankRepository, times(1)).getBanksByCountryCodeISO2(countryCode);
     }
 
@@ -108,7 +108,7 @@ public class BankServiceTest {
         when(bankRepository.getBankBySwift(testSwift)).thenReturn(bank);
         BankDTO result = bankService.getBankBySwift(testSwift);
         assertNotNull(result);
-        assertEquals(testSwift, result.getSwift());
+        assertEquals(testSwift, result.getSwiftCode());
         assertEquals("AL", result.getCountryCodeISO2());
         assertEquals("UNITED BANK OF ALBANIA SH.A", result.getName());
         assertEquals("HYRJA 3 RR. DRITAN HOXHA ND. 11 TIRANA, TIRANA, 1023", result.getAddress());
@@ -130,7 +130,7 @@ public class BankServiceTest {
         when(bankRepository.getBanksBySwift("AAISALTR%")).thenReturn(List.of(branch1));
         BankDTO result = bankService.getBankBySwift(testSwift);
         assertNotNull(result);
-        assertEquals(testSwift, result.getSwift());
+        assertEquals(testSwift, result.getSwiftCode());
         assertEquals("AL", result.getCountryCodeISO2());
         assertEquals("UNITED BANK OF ALBANIA SH.A", result.getName());
         assertEquals("HYRJA 3 RR. DRITAN HOXHA ND. 11 TIRANA, TIRANA, 1023", result.getAddress());
