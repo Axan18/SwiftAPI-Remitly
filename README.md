@@ -18,17 +18,21 @@ and "swiftcode" (auto-generated for PK by Postgres) are created.
 
 ## Setup and Run
 1. Clone the repository
->git clone https://github.com/Axan18/SwiftAPI-Remitly.git
-
+```bash
+git clone https://github.com/Axan18/SwiftAPI-Remitly.git
+```
 2. Build the project
-> mvn clean install
-
+```bash
+mvn clean install
+```
 3. Run the project
-> docker-compose up --build -d
+```bash
+docker-compose up --build -d
 
 4. Access the API
-> http://localhost:8080
-
+```bash
+ http://localhost:8080
+```
 If you would like to run tests, you can do so by running:
 > mvn test
 ## Parser
