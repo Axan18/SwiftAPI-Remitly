@@ -18,27 +18,28 @@ import org.hibernate.type.SqlTypes;
 public class Bank {
     @Id
     @JdbcTypeCode(SqlTypes.CHAR)
-    @Column(length = 11, columnDefinition = "varchar(11)", nullable = false)
+    @Column(length = 11,name = "swiftcode", columnDefinition = "varchar(11)", nullable = false)
     private String swiftCode;
 
     @NotNull
     @NotBlank
-    @Column(length = 2, columnDefinition = "varchar(2)")
+    @Column(length = 2,name = "countryiso2", columnDefinition = "varchar(2)")
     private String countryISO2;
 
     @NotNull
     @NotBlank
-    @Column(length = 255, columnDefinition = "varchar(255)")
+    @Column(length = 255,name = "bankname", columnDefinition = "varchar(255)")
     private String bankName;
 
-    @Column(length = 255, columnDefinition = "varchar(255)")
+    @Column(length = 255,name = "address", columnDefinition = "varchar(255)")
     private String address;
 
     @NotBlank
-    @Column(length = 255, columnDefinition = "varchar(255)")
+    @Column(length = 255,name = "countryname", columnDefinition = "varchar(255)")
     private String countryName;
 
     @NotNull
+    @Column(name = "isheadquarter")
     private Boolean isHeadquarter;
 
 }

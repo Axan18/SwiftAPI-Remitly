@@ -1,5 +1,6 @@
 package com.remitly.axan18.swift_api.services;
 
+import com.remitly.axan18.swift_api.bootstrap.BankValidator;
 import com.remitly.axan18.swift_api.entities.Bank;
 import com.remitly.axan18.swift_api.mappers.BankMapper;
 import com.remitly.axan18.swift_api.models.BankDTO;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +20,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 public class BankServiceTest {
 
     @Mock
@@ -25,6 +28,9 @@ public class BankServiceTest {
 
     @Mock
     private BankMapper bankMapper;
+
+    @Mock
+    private BankValidator bankValidator;
 
     @InjectMocks
     BankServiceImpl bankService;
@@ -62,6 +68,9 @@ public class BankServiceTest {
                 .address("HYRJA 3 RR. DRITAN HOXHA ND. 11 TIRANA, TIRANA, 1023")
                 .countryName("ALBANIA")
                 .build();
+        when(bankValidator.isValidISO2(bankDTO.getCountryISO2(), bankDTO.getCountryName())).thenReturn(true);
+        when(bankValidator.isValidSwift(bankDTO.getSwiftCode())).thenReturn(true);
+        when(bankValidator.isValidHeadquarter(bankDTO.getSwiftCode(), true)).thenReturn(true);
         when(bankRepository.save(any(Bank.class))).thenReturn(bank);
         when(bankMapper.toBank(bankDTO)).thenReturn(bank);
         boolean result = bankService.addBank(bankDTO);

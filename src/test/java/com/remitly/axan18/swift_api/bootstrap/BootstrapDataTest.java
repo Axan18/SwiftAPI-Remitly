@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 @DataJpaTest
 @Import({BootstrapData.class, BootstrapTestConfig.class})
 class BootstrapDataTest {
