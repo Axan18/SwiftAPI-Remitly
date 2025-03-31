@@ -18,4 +18,23 @@ public class BankDTO {
     private Boolean isHeadquarter;
     private final List<BankDTO> branches;
 
+    public BankDTO(Bank branch) {
+        this.swift = branch.getSwift();
+        this.countryCodeISO2 = branch.getCountryCodeISO2();
+        this.countryName = branch.getCountryName();
+        this.name = branch.getName();
+        this.address = branch.getAddress();
+        this.isHeadquarter = branch.getIsHeadquarter();
+        this.branches = null;
+    }
+
+    public BankDTO(Bank headquarter, List<BankDTO> branches) {
+        this.swift = headquarter.getSwift();
+        this.countryCodeISO2 = headquarter.getCountryCodeISO2();
+        this.countryName = headquarter.getCountryName();
+        this.name = headquarter.getName();
+        this.address = headquarter.getAddress();
+        this.isHeadquarter = headquarter.getIsHeadquarter();
+        this.branches = branches;
+    }
 }

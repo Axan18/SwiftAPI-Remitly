@@ -1,5 +1,6 @@
 package com.remitly.axan18.swift_api.services;
 
+import com.remitly.axan18.swift_api.entities.Bank;
 import com.remitly.axan18.swift_api.exceptions.CannotDeleteEntityException;
 import com.remitly.axan18.swift_api.mappers.BankMapper;
 import com.remitly.axan18.swift_api.models.BankDTO;
@@ -61,17 +62,15 @@ public class BankServiceImpl implements BankService{
     @Override
     public CountryWithSwiftCodesDTO getBanksByCountryCode(String countryCode) {
         List<BankDTO> banks = bankRepository.getBanksByCountryCodeISO2(countryCode).stream().map(
-                bank -> {
-                    return BankDTO.builder()
-                            .address(bank.getAddress())
-                            .name(bank.getName())
-                            .countryCodeISO2(bank.getCountryCodeISO2())
-                            .isHeadquarter(bank.getIsHeadquarter())
-                            .swift(bank.getSwift())
-                            .branches(null)
-                            .countryName(null)
-                            .build();
-                }
+                bank -> BankDTO.builder()
+                        .address(bank.getAddress())
+                        .name(bank.getName())
+                        .countryCodeISO2(bank.getCountryCodeISO2())
+                        .isHeadquarter(bank.getIsHeadquarter())
+                        .swift(bank.getSwift())
+                        .branches(null)
+                        .countryName(null)
+                        .build()
         ).toList();
         return CountryWithSwiftCodesDTO.builder()
                 .countryISO2(countryCode)
@@ -82,6 +81,28 @@ public class BankServiceImpl implements BankService{
 
     @Override
     public BankDTO getBankBySwift(String swiftCode) {
-        return null;
+        if(swiftCode.startsWith("XXX",8)){
+            Bank headquarter = bankRepository.getBankBySwift(swiftCode);
+            if (headquarter == null) {
+                throw new EntityNotFoundException("Bank with swift code " + swiftCode + " not found.");
+            }
+            List<BankDTO> branches = bankRepository.getBanksBySwift(swiftCode.substring(0,8)+"%").stream().map(
+                    branch -> BankDTO.builder()
+                            .address(branch.getAddress())
+                            .name(branch.getName())
+                            .countryCodeISO2(branch.getCountryCodeISO2())
+                            .isHeadquarter(branch.getIsHeadquarter())
+                            .swift(branch.getSwift())
+                            .branches(null)
+                            .countryName(null)
+                            .build()).toList();
+            return new BankDTO(headquarter, branches);
+        }else{
+            Bank bank = bankRepository.getBankBySwift(swiftCode);
+            if (bank == null) {
+                throw new EntityNotFoundException("Bank with swift code " + swiftCode + " not found.");
+            }
+            return new BankDTO(bank);
+        }
     }
 }
