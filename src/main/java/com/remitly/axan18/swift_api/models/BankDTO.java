@@ -1,5 +1,6 @@
 package com.remitly.axan18.swift_api.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.remitly.axan18.swift_api.entities.Bank;
 import lombok.*;
 
@@ -12,10 +13,13 @@ import java.util.List;
 public class BankDTO {
     private String swift;
     private String countryCodeISO2;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String countryName;
     private String name;
     private String address;
     private Boolean isHeadquarter;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<BankDTO> branches;
 
     public BankDTO(Bank branch) {

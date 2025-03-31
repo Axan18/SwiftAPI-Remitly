@@ -4,7 +4,6 @@ import com.remitly.axan18.swift_api.entities.Bank;
 import com.remitly.axan18.swift_api.exceptions.CannotDeleteEntityException;
 import com.remitly.axan18.swift_api.mappers.BankMapper;
 import com.remitly.axan18.swift_api.models.BankDTO;
-import com.remitly.axan18.swift_api.models.BankHeadquarterDTO;
 import com.remitly.axan18.swift_api.models.CountryWithSwiftCodesDTO;
 import com.remitly.axan18.swift_api.repositories.BankRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,12 +13,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor

@@ -4,8 +4,7 @@ import com.remitly.axan18.swift_api.entities.Bank;
 import com.remitly.axan18.swift_api.models.BankDTO;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface BankMapper {
-    BankDTO toBankDTO(Bank bank);
     Bank toBank(BankDTO bankDTO);
 }
